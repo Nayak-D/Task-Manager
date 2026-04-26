@@ -3,8 +3,16 @@ import toast from 'react-hot-toast';
 import type { Notice, CreateNoticeDto, UpdateNoticeDto, LoginDto, ApiResponse, User, RecipientOption } from '@/types';
 
 // ─── Axios Instance ────────────────────────────────────────────────────────────
+const envApiUrl = (import.meta as any).env?.VITE_API_URL;
+const isLocalHost =
+  typeof window !== 'undefined' &&
+  ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const fallbackApiUrl = isLocalHost
+  ? 'http://localhost:5000/api'
+  : 'https://digital-notice-board-9cq4.onrender.com/api';
+
 const api = axios.create({
-  baseURL: (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api',
+  baseURL: envApiUrl || fallbackApiUrl,
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000,
 });
@@ -36,7 +44,7 @@ api.interceptors.response.use(
 
     if (!silent) {
       if (!error.response && (error.code === 'ERR_NETWORK' || error.message === 'Network Error')) {
-        toast.error('Cannot reach server. Make sure the backend is running on port 5000.', {
+        toast.error(`Cannot reach server at ${envApiUrl || fallbackApiUrl}.`, {
           id: 'network-error', // Deduplicate: same id = only one toast shown
           duration: 5000,
         });
