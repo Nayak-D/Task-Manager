@@ -42,16 +42,27 @@ app.use('/api', limiter);
 app.use('/api/auth/login', authLimiter);
 
 // ─── CORS ──────────────────────────────────────────────────────────────────────
-const allowedOrigins = [
-  process.env.FRONTEND_URL, // Vite preview
-];
+const configuredOrigins = (process.env.FRONTEND_URL || '')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
+// Allow Vercel preview/prod domains without requiring env updates for each preview URL.
+const isVercelDomain = (origin) => /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
 
 app.use(
   cors({
     origin(origin, callback) {
+      const normalizedOrigin = origin?.replace(/\/$/, '');
+
       // Allow requests with no origin (mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+
+      if (configuredOrigins.includes(normalizedOrigin)) return callback(null, true);
+
+      // Support Vercel deployments (preview + production URLs)
+      if (isVercelDomain(normalizedOrigin)) return callback(null, true);
+
       callback(new Error(`CORS: Origin ${origin} not allowed`));
     },
     credentials: true,
