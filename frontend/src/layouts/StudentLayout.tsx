@@ -1,10 +1,18 @@
-import { Outlet } from 'react-router-dom';
-import { Bell, Moon, Sun } from 'lucide-react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { Bell, LogOut, Moon, Sun } from 'lucide-react';
 import { useThemeStore } from '@/store/themeStore';
+import { useAuthStore } from '@/store/authStore';
 import { motion } from 'framer-motion';
 
 export function StudentLayout() {
   const { isDark, toggle } = useThemeStore();
+  const { clearAuth } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    clearAuth();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-navy-950">
@@ -31,6 +39,13 @@ export function StudentLayout() {
               className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl transition-colors inline-flex items-center gap-1.5"
+            >
+              <LogOut size={14} />
+              Logout
             </button>
           </div>
         </div>
