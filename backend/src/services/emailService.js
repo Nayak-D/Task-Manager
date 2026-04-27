@@ -91,7 +91,7 @@ class EmailService {
             author,
             expiryDate,
             noticeId,
-            baseUrl = 'http://localhost:5173',
+            baseUrl = process.env.FRONTEND_URL,
         } = noticeData;
 
         // Create HTML email template

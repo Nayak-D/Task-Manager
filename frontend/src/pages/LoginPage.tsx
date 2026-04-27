@@ -23,7 +23,7 @@ export function LoginPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { email: 'admin@college.edu', password: 'admin123' },
+    defaultValues: { email: '', password: '' },
   });
 
   if (isAuthenticated) return <Navigate to="/admin" replace />;
@@ -39,7 +39,7 @@ export function LoginPage() {
       if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
         // interceptor already showed the toast
       } else {
-        toast.error('Invalid credentials. Try admin@college.edu / admin123');
+        toast.error('Invalid credentials. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -85,16 +85,7 @@ export function LoginPage() {
             <p className="text-white/50 text-sm">Sign in to the Admin Portal</p>
           </div>
 
-          {/* Hint card */}
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-            className="bg-primary-500/10 border border-primary-500/20 rounded-xl px-4 py-2.5 mb-6 flex items-start gap-2"
-          >
-            <Sparkles size={14} className="text-primary-400 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-primary-300">
-              Demo: <span className="font-mono font-semibold">admin@college.edu</span> / <span className="font-mono font-semibold">admin123</span>
-            </p>
-          </motion.div>
+
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>

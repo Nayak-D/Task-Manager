@@ -14,15 +14,15 @@ const seedData = async () => {
   // Create admin user — plain passwords, the pre('save') hook hashes them
   const admin = await User.create({
     name: 'Admin User',
-    email: 'admin@college.edu',
-    password: 'admin123',
+    email: 'nayak@gmail.com',
+    password: 'nayak123',
     role: 'admin',
   });
 
   // Create student user
   await User.create({
     name: 'Student User',
-    email: 'student@college.edu',
+    email: 'student@example.com',
     password: 'student123',
     role: 'student',
   });
