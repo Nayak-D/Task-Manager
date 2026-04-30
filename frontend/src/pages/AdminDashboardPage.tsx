@@ -41,7 +41,7 @@ export function AdminDashboardPage() {
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back, Admin</p>
         </div>
-        <Link to="/admin/notices/new">
+        <Link to="/admin/tasks/new">
           <Button icon={<PlusCircle size={16} />}>Create Task</Button>
         </Link>
       </div>
@@ -61,7 +61,7 @@ export function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-white dark:bg-navy-850 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
             <h2 className="font-bold text-slate-800 dark:text-white text-sm">Recent Tasks</h2>
-            <Link to="/admin/notices" className="text-xs text-primary-600 dark:text-primary-400 font-semibold flex items-center gap-1 hover:underline">
+            <Link to="/admin/tasks" className="text-xs text-primary-600 dark:text-primary-400 font-semibold flex items-center gap-1 hover:underline">
               View all <ArrowRight size={12} />
             </Link>
           </div>
@@ -103,12 +103,12 @@ export function AdminDashboardPage() {
           {/* Quick actions */}
           <div className="bg-white dark:bg-navy-850 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 space-y-2">
             <h2 className="font-bold text-slate-800 dark:text-white text-sm mb-3">Quick Actions</h2>
-            <Link to="/admin/notices/new">
+            <Link to="/admin/tasks/new">
               <button className="w-full flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 rounded-xl text-sm font-semibold text-primary-700 dark:text-primary-300 transition-colors">
                 <PlusCircle size={16} /> Create New Task
               </button>
             </Link>
-            <Link to="/admin/notices">
+            <Link to="/admin/tasks">
               <button className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors mt-2">
                 <FileText size={16} /> Manage Tasks
               </button>

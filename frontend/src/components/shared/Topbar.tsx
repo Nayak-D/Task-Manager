@@ -53,7 +53,7 @@ export function Topbar({ title, onSearch }: TopbarProps) {
             <input
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Search tasks..."
+              placeholder="Search notices..."
               className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 dark:bg-navy-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/40"
             />
           </div>

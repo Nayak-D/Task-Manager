@@ -15,7 +15,7 @@ import api from '@/services/api';
 import { toast } from 'react-hot-toast';
 import type { Notice } from '@/types';
 
-export function ManageNoticesPage() {
+export function ManageTasksPage() {
   const { filteredNotices, isLoading, filters, setFilters, removeNotice, fetchNotices } = useNotices(true);
   const [deleteTarget, setDeleteTarget] = useState<Notice | null>(null);
   const [viewTarget, setViewTarget] = useState<Notice | null>(null);
@@ -32,10 +32,10 @@ export function ManageNoticesPage() {
   const handlePublish = async (notice: Notice) => {
     try {
       await api.patch(`/notices/${notice.id}/publish`);
-      toast.success('Notice published successfully');
+      toast.success('Task published successfully');
       fetchNotices();
     } catch {
-      toast.error('Failed to publish notice');
+      toast.error('Failed to publish task');
     }
   };
 
@@ -58,7 +58,7 @@ export function ManageNoticesPage() {
           <h1 className="text-xl font-bold text-slate-800 dark:text-white">Manage Tasks</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">{filteredNotices.length} tasks found</p>
         </div>
-        <Link to="/admin/notices/new">
+        <Link to="/admin/tasks/new">
           <Button icon={<PlusCircle size={16} />}>Create Task</Button>
         </Link>
       </div>
@@ -213,7 +213,7 @@ function NoticeTableRow({ notice, index, onView, onDelete, onPublish }: {
             <Eye size={15} />
           </button>
           <Link
-            to={`/admin/notices/${notice.id}/edit`}
+            to={`/admin/tasks/${notice.id}/edit`}
             className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
             title="Edit"
           >

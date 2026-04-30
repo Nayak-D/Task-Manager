@@ -108,7 +108,7 @@ class EmailService {
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@noticeboard.com',
       to: recipients.join(', '),
-      subject: `🔔 New Notice: ${title}`,
+      subject: `🔔 New Task: ${title}`,
       html: htmlContent,
       text: this.generatePlainTextEmail({ title, description, category, author, expiryDate }),
     };
@@ -197,7 +197,7 @@ class EmailService {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>New Notice Alert</title>
+      <title>New Task Alert</title>
       <style>
         body {
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -229,7 +229,7 @@ class EmailService {
         .content {
           padding: 30px;
         }
-        .notice-title {
+        .task-title {
           font-size: 20px;
           font-weight: 600;
           color: #222;
@@ -299,10 +299,10 @@ class EmailService {
     <body>
       <div class="container">
         <div class="header">
-          <h1>🔔 New Notice Alert</h1>
+          <h1>🔔 New Task Alert</h1>
         </div>
         <div class="content">
-          <div class="notice-title">${this.escapeHtml(title)}</div>
+          <div class="task-title">${this.escapeHtml(title)}</div>
           <div class="category-badge">${this.escapeHtml(category)}</div>
           
           <div class="description">${this.escapeHtml(description)}</div>
@@ -313,14 +313,14 @@ class EmailService {
             <p><span class="meta-label">Expires:</span> ${formattedDate}</p>
           </div>
 
-          <a href="${viewNoticeLink}" class="cta-button">View Full Notice</a>
+          <a href="${viewNoticeLink}" class="cta-button">View Full Task</a>
 
           <p style="color: #999; font-size: 12px; margin-top: 20px;">
-            This is an automated notification from the Digital Notice Board. Please do not reply to this email.
+            This is an automated notification from the Digital Task Board. Please do not reply to this email.
           </p>
         </div>
         <div class="footer">
-          <p>📬 Digital Notice Board</p>
+          <p>📬 Digital Task Board</p>
           <div class="timestamp">Sent at ${new Date().toLocaleString()}</div>
         </div>
       </div>
@@ -334,7 +334,7 @@ class EmailService {
    */
   generatePlainTextEmail({ title, description, category, author, expiryDate }) {
     return `
-New Notice Alert
+New Task Alert
 ================
 
 Title: ${title}
@@ -344,7 +344,7 @@ Expires: ${new Date(expiryDate).toLocaleString()}
 
 ${description}
 
-Please log in to the Digital Notice Board to view more details.
+Please log in to the Digital Task Board to view more details.
     `.trim();
   }
 
@@ -405,7 +405,7 @@ Please log in to the Digital Notice Board to view more details.
         </div>
         <div class="content">
           <p>Hi ${this.escapeHtml(name)},</p>
-          <p>Your Digital Notice Board account is ready. Click the button below to verify your email address and activate access to the portal.</p>
+          <p>Your Digital Task Board account is ready. Click the button below to verify your email address and activate access to the portal.</p>
           <a href="${verificationUrl}" class="button">Verify Email</a>
           <p class="note">If the button does not work, copy and paste this link into your browser:</p>
           <p class="note">${verificationUrl}</p>
@@ -418,7 +418,7 @@ Please log in to the Digital Notice Board to view more details.
 
   generateVerificationPlainTextEmail({ name, verificationUrl }) {
     return `
-Verify your Digital Notice Board account
+Verify your Digital Task Board account
 
 Hi ${name},
 

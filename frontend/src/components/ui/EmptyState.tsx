@@ -9,8 +9,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  title = 'No tasks found',
-  description = 'There are no active tasks at this time. Check back later.',
+  title = 'No notices found',
+  description = 'There are no active notices at this time. Check back later.',
   action,
 }: EmptyStateProps) {
   return (

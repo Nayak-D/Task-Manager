@@ -18,8 +18,8 @@ interface SidebarItem {
 
 const ADMIN_NAV: SidebarItem[] = [
   { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={18} /> },
-  { label: 'Create Task', path: '/admin/notices/new', icon: <PlusCircle size={18} /> },
-  { label: 'Manage Tasks', path: '/admin/notices', icon: <List size={18} /> },
+  { label: 'Create Task', path: '/admin/tasks/new', icon: <PlusCircle size={18} /> },
+  { label: 'Manage Tasks', path: '/admin/tasks', icon: <List size={18} /> },
   { label: 'Reports', path: '/admin/reports', icon: <BarChart2 size={18} /> },
 ];
 
@@ -51,7 +51,7 @@ export function Sidebar({ role }: SidebarProps) {
         </div>
         {!collapsed && (
           <div>
-            <span className="text-white font-bold text-sm leading-tight block">Task Board</span>
+            <span className="text-white font-bold text-sm leading-tight block">Notice Board</span>
             <span className="text-white/50 text-[10px] uppercase tracking-widest">{role === 'admin' ? 'Admin Panel' : 'Student'}</span>
           </div>
         )}

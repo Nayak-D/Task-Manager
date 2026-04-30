@@ -8,7 +8,7 @@ import { noticeService } from '@/services/api';
 import { useNoticeStore } from '@/store/noticeStore';
 import type { Notice, CreateNoticeDto } from '@/types';
 
-export function CreateEditNoticePage() {
+export function CreateEditTaskPage() {
   const { id } = useParams<{ id?: string }>();
   const isEditing = Boolean(id);
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export function CreateEditNoticePage() {
           setInitialData(res.data);
           setFetching(false);
         }).catch(() => {
-          navigate('/admin/notices');
+          navigate('/admin/tasks');
         });
       }
     }
@@ -41,7 +41,7 @@ export function CreateEditNoticePage() {
     } else {
       await createNotice(data);
     }
-    navigate('/admin/notices');
+    navigate('/admin/tasks');
   };
 
   return (

@@ -37,7 +37,7 @@ const register = asyncHandler(async (req, res) => {
       email: normalizedEmail,
       password,
       role: userRole,
-      isVerified: true, // Auto-verify for development
+      isVerified: false,
       isActive: true,
     });
   } else {
@@ -45,7 +45,7 @@ const register = asyncHandler(async (req, res) => {
     user.password = password;
     user.role = userRole;
     user.isActive = true;
-    user.isVerified = true; // Auto-verify for development
+    user.isVerified = false;
   }
 
   await user.save();

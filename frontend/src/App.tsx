@@ -6,8 +6,8 @@ import { useThemeStore } from '@/store/themeStore';
 // Layouts
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { StudentLayout } from '@/layouts/StudentLayout';
-import { ProtectedRoute, StudentRoute } from '@/features/auth/ProtectedRoute';
 import { AuthLayout } from '@/layouts/AuthLayout';
+import { ProtectedRoute, StudentRoute } from '@/features/auth/ProtectedRoute';
 
 // Lazy pages
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -15,8 +15,8 @@ const RegisterPage = lazy(() => import('@/pages/RegisterPage').then(m => ({ defa
 const VerifyEmailPage = lazy(() => import('@/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })));
 const StudentFeedPage = lazy(() => import('@/pages/StudentFeedPage').then(m => ({ default: m.StudentFeedPage })));
 const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
-const ManageNoticesPage = lazy(() => import('@/pages/ManageNoticesPage').then(m => ({ default: m.ManageNoticesPage })));
-const CreateEditNoticePage = lazy(() => import('@/pages/CreateEditNoticePage').then(m => ({ default: m.CreateEditNoticePage })));
+const ManageTasksPage = lazy(() => import('@/pages/ManageTasksPage').then(m => ({ default: m.ManageTasksPage })));
+const CreateEditTaskPage = lazy(() => import('@/pages/CreateEditTaskPage').then(m => ({ default: m.CreateEditTaskPage })));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 
@@ -40,7 +40,7 @@ function AppContent() {
     <>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Public */}
+          {/* Public Auth Routes */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
@@ -58,9 +58,9 @@ function AppContent() {
           <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboardPage />} />
-              <Route path="notices" element={<ManageNoticesPage />} />
-              <Route path="notices/new" element={<CreateEditNoticePage />} />
-              <Route path="notices/:id/edit" element={<CreateEditNoticePage />} />
+              <Route path="tasks" element={<ManageTasksPage />} />
+              <Route path="tasks/new" element={<CreateEditTaskPage />} />
+              <Route path="tasks/:id/edit" element={<CreateEditTaskPage />} />
               <Route path="reports" element={<ReportsPage />} />
             </Route>
           </Route>

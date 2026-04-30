@@ -14,9 +14,6 @@ export function AuthLayout() {
         ></iframe>
       </div>
 
-      {/* Overlay to hide the Spline watermark */}
-      <div className="absolute bottom-4 right-4 w-32 h-10 bg-[#0a0a0a] z-[5] pointer-events-none rounded-xl" />
-
       {/* Foreground Layer: Content area */}
       <div className="relative z-10 min-h-screen flex items-center justify-center md:justify-end p-4 pointer-events-none">
         <Outlet />
