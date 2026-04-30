@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -25,6 +25,9 @@ type FormData = z.infer<typeof schema>;
 
 export function RegisterPage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const initialRole = (searchParams.get('role') === 'admin' ? 'admin' : 'student') as 'student' | 'admin';
+    
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
     const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
@@ -38,7 +41,7 @@ export function RegisterPage() {
         watch,
     } = useForm<FormData>({
         resolver: zodResolver(schema),
-        defaultValues: { name: '', email: '', password: '', confirmPassword: '', role: 'student' },
+        defaultValues: { name: '', email: '', password: '', confirmPassword: '', role: initialRole },
     });
 
     const selectedRole = watch('role');

@@ -190,7 +190,7 @@ export function LoginPage() {
               <p className="text-xs text-white/70">
                 New here? Create a real student or admin account first.
               </p>
-              <Link to="/register" className="inline-flex mt-3 text-xs font-semibold text-accent-teal hover:text-white transition-colors">
+              <Link to={`/register?role=${loginMode}`} className="inline-flex mt-3 text-xs font-semibold text-accent-teal hover:text-white transition-colors">
                 Create an account
               </Link>
             </div>
