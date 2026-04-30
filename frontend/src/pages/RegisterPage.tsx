@@ -53,9 +53,8 @@ export function RegisterPage() {
                 role: data.role,
             });
 
-            setSubmittedEmail(data.email);
-            setVerificationUrl(res.verificationUrl || null);
-            toast.success('Account created. Check your email to verify it.');
+            toast.success('Account created. Check your email for the verification code.');
+            navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
         } catch (err: any) {
             toast.error(err?.response?.data?.message || 'Could not create account.');
         } finally {
@@ -63,47 +62,6 @@ export function RegisterPage() {
         }
     };
 
-    if (submittedEmail) {
-        return (
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="relative w-full max-w-lg md:mr-32 pointer-events-auto"
-            >
-                        <div className="bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl text-center hover:bg-white/[0.05] transition-all duration-300">
-                            <div className="w-16 h-16 bg-accent-teal/20 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-accent-teal/30">
-                                <UserPlus size={28} className="text-accent-teal" />
-                            </div>
-                            <h1 className="text-2xl font-bold text-white mb-2">Verify your email</h1>
-                            <p className="text-white/70 text-sm mb-4">
-                                We created an account for <span className="font-semibold text-white">{submittedEmail}</span>.
-                                Open the verification email to activate the {selectedRole} portal.
-                            </p>
-                            <p className="text-xs text-white/50 mb-6">
-                                After verification, use the login page to sign in with your real email and password.
-                            </p>
-
-                            <div className="space-y-3">
-                                {verificationUrl && (
-                                    <a
-                                        href={verificationUrl}
-                                        className="w-full inline-flex items-center justify-center py-3 bg-primary-600 hover:bg-primary-500 text-white font-bold rounded-xl text-sm transition-all shadow-glow"
-                                    >
-                                        Open Verification Link
-                                    </a>
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={() => navigate('/login')}
-                                    className="w-full py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-sm transition-all border border-white/10"
-                                >
-                                    Go to Login
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
-        );
-    }
 
     return (
         <motion.div

@@ -6,10 +6,8 @@ const emailService = require('../services/emailService');
 
 const getFrontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 
-const createVerificationToken = (userId) => {
-  return jwt.sign({ id: userId, purpose: 'email-verification' }, process.env.JWT_SECRET, {
-    expiresIn: process.env.EMAIL_VERIFICATION_EXPIRES_IN || '24h',
-  });
+const generateOTP = () => {
+  return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
 // @desc    Register a new user
@@ -48,21 +46,24 @@ const register = asyncHandler(async (req, res) => {
     user.isVerified = false;
   }
 
+  const verificationCode = generateOTP();
+  user.verificationCode = verificationCode;
+  // Code expires in 15 minutes
+  user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
   await user.save();
 
-  const verificationToken = createVerificationToken(user._id);
-  const verificationUrl = `${getFrontendUrl()}/verify-email?token=${encodeURIComponent(verificationToken)}`;
-  const emailResult = await emailService.sendVerificationEmail(user.email, user.name, verificationUrl);
+  const emailResult = await emailService.sendVerificationEmail(user.email, user.name, verificationCode);
 
   const userObj = user.toJSON();
 
   res.status(201).json({
     success: true,
-    message: 'Account created successfully. Check your email to verify your account.',
+    message: 'Account created successfully. Check your email for the verification code.',
     data: {
       user: userObj,
       verificationSent: emailResult.success,
-      verificationUrl: process.env.NODE_ENV === 'development' || !emailResult.success ? verificationUrl : undefined,
+      // For development purposes, expose code (REMOVE in actual prod if needed, though dev makes it easy to test)
+      verificationCode: process.env.NODE_ENV === 'development' || !emailResult.success ? verificationCode : undefined,
     },
   });
 });
@@ -71,24 +72,14 @@ const register = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/verify-email
 // @access  Public
 const verifyEmail = asyncHandler(async (req, res) => {
-  const token = req.body?.token || req.query?.token;
+  const { email, code } = req.body;
 
-  if (!token) {
-    return res.status(400).json({ success: false, message: 'Verification token is required.' });
+  if (!email || !code) {
+    return res.status(400).json({ success: false, message: 'Email and verification code are required.' });
   }
 
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    return res.status(400).json({ success: false, message: 'Verification token is invalid or expired.' });
-  }
-
-  if (decoded.purpose !== 'email-verification') {
-    return res.status(400).json({ success: false, message: 'Invalid verification token.' });
-  }
-
-  const user = await User.findById(decoded.id).select('+password');
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
   if (!user) {
     return res.status(404).json({ success: false, message: 'Account not found.' });
@@ -102,7 +93,17 @@ const verifyEmail = asyncHandler(async (req, res) => {
     });
   }
 
+  if (user.verificationCode !== code) {
+    return res.status(400).json({ success: false, message: 'Invalid verification code.' });
+  }
+
+  if (user.verificationCodeExpires && user.verificationCodeExpires < new Date()) {
+    return res.status(400).json({ success: false, message: 'Verification code has expired. Please register again.' });
+  }
+
   user.isVerified = true;
+  user.verificationCode = null;
+  user.verificationCodeExpires = null;
   await user.save();
 
   res.status(200).json({

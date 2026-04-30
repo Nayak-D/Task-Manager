@@ -70,8 +70,8 @@ export const authService = {
     return res.data.data || res.data;
   },
 
-  async verifyEmail(token: string): Promise<any> {
-    const res = await api.post('/auth/verify-email', { token }, { silent: true } as any);
+  async verifyEmail(email: string, code: string): Promise<any> {
+    const res = await api.post('/auth/verify-email', { email, code }, { silent: true } as any);
     return res.data.data;
   },
 

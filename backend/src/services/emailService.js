@@ -143,7 +143,7 @@ class EmailService {
     }
   }
 
-  async sendVerificationEmail(email, name, verificationUrl) {
+  async sendVerificationEmail(email, name, verificationCode) {
     if (!this.transporter) {
       console.error('❌ Email service not configured');
       return { success: false, message: 'Email service not configured' };
@@ -152,9 +152,9 @@ class EmailService {
     const mailOptions = {
       from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@noticeboard.com',
       to: email,
-      subject: 'Verify your Digital Notice Board account',
-      html: this.generateVerificationEmailTemplate({ name, verificationUrl }),
-      text: this.generateVerificationPlainTextEmail({ name, verificationUrl }),
+      subject: 'Verify your Digital Task Board account',
+      html: this.generateVerificationEmailTemplate({ name, verificationCode }),
+      text: this.generateVerificationPlainTextEmail({ name, verificationCode }),
     };
 
     try {
@@ -348,7 +348,7 @@ Please log in to the Digital Task Board to view more details.
     `.trim();
   }
 
-  generateVerificationEmailTemplate({ name, verificationUrl }) {
+  generateVerificationEmailTemplate({ name, verificationCode }) {
     return `
     <!DOCTYPE html>
     <html>
@@ -405,10 +405,11 @@ Please log in to the Digital Task Board to view more details.
         </div>
         <div class="content">
           <p>Hi ${this.escapeHtml(name)},</p>
-          <p>Your Digital Task Board account is ready. Click the button below to verify your email address and activate access to the portal.</p>
-          <a href="${verificationUrl}" class="button">Verify Email</a>
-          <p class="note">If the button does not work, copy and paste this link into your browser:</p>
-          <p class="note">${verificationUrl}</p>
+          <p>Your Digital Task Board account is ready. Use the 4-digit verification code below to verify your email address and activate access to the portal.</p>
+          <div style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #2563eb; background: #eff6ff; padding: 20px; border-radius: 12px; text-align: center; margin: 24px 0;">
+            ${verificationCode}
+          </div>
+          <p class="note">This code is valid for 15 minutes. Please do not share it with anyone.</p>
         </div>
       </div>
     </body>
@@ -416,14 +417,15 @@ Please log in to the Digital Task Board to view more details.
     `.trim();
   }
 
-  generateVerificationPlainTextEmail({ name, verificationUrl }) {
+  generateVerificationPlainTextEmail({ name, verificationCode }) {
     return `
 Verify your Digital Task Board account
 
 Hi ${name},
 
-Open this link to verify your email and activate your account:
-${verificationUrl}
+Your 4-digit verification code is: ${verificationCode}
+
+This code is valid for 15 minutes.
         `.trim();
   }
 
