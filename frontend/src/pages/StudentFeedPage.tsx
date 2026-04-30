@@ -43,7 +43,7 @@ export function StudentFeedPage() {
               <Flame size={15} />
             </div>
             <p className="text-sm font-semibold flex-1">
-              {stats.urgent} urgent {stats.urgent === 1 ? 'notice' : 'notices'} require your attention!
+              {stats.urgent} urgent {stats.urgent === 1 ? 'task' : 'tasks'} require your attention!
             </p>
             <button
               onClick={() => setFilters({ category: 'Urgent' })}
@@ -73,10 +73,10 @@ export function StudentFeedPage() {
               <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/40 rounded-xl flex items-center justify-center">
                 <Bell size={16} className="text-primary-600 dark:text-primary-400" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-primary-500">Live Notices</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary-500">Live Tasks</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">
-              Notice Board
+              Task Board
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
               Stay updated with the latest announcements
@@ -116,8 +116,8 @@ export function StudentFeedPage() {
           <SearchEmpty />
         ) : (
           <EmptyState
-            title="No active notices"
-            description="There are no active notices at this time. Check back later for new announcements."
+            title="No active tasks"
+            description="There are no active tasks at this time. Check back later for new announcements."
           />
         )
       ) : (

@@ -55,11 +55,11 @@ export function ManageNoticesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-800 dark:text-white">Manage Notices</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">{filteredNotices.length} notices found</p>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-white">Manage Tasks</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{filteredNotices.length} tasks found</p>
         </div>
         <Link to="/admin/notices/new">
-          <Button icon={<PlusCircle size={16} />}>Create Notice</Button>
+          <Button icon={<PlusCircle size={16} />}>Create Task</Button>
         </Link>
       </div>
 
@@ -89,7 +89,7 @@ export function ManageNoticesPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Notice</th>
+                <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Task</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 hidden sm:table-cell">Category</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500 hidden md:table-cell">Created</th>
                 <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
@@ -103,7 +103,7 @@ export function ManageNoticesPage() {
                   ? (
                     <tr>
                       <td colSpan={5} className="py-12">
-                        <EmptyState title="No notices" description="No notices found matching your filters." />
+                        <EmptyState title="No tasks" description="No tasks found matching your filters." />
                       </td>
                     </tr>
                   )
@@ -128,7 +128,7 @@ export function ManageNoticesPage() {
         isOpen={Boolean(deleteTarget)}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
-        title="Delete Notice"
+        title="Delete Task"
         message={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
         confirmLabel="Delete"
         loading={deleteLoading}

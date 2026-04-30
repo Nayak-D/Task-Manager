@@ -1,6 +1,16 @@
 const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
+const jwt = require('jsonwebtoken');
+const emailService = require('../services/emailService');
+
+const getFrontendUrl = () => (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+
+const createVerificationToken = (userId) => {
+  return jwt.sign({ id: userId, purpose: 'email-verification' }, process.env.JWT_SECRET, {
+    expiresIn: process.env.EMAIL_VERIFICATION_EXPIRES_IN || '24h',
+  });
+};
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -8,17 +18,97 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const register = asyncHandler(async (req, res) => {
   const { name, email, password, role } = req.body;
 
-  // Only allow admin role creation if explicitly given (for seeding)
-  // In production, registering students only publicly
+  const normalizedEmail = email?.toLowerCase().trim();
   const userRole = role === 'admin' ? 'admin' : 'student';
 
-  const user = await User.create({ name, email, password, role: userRole });
-  const token = generateToken(user._id);
+  if (!name || !normalizedEmail || !password) {
+    return res.status(400).json({ success: false, message: 'Name, email and password are required.' });
+  }
+
+  let user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+  if (user && user.isVerified) {
+    return res.status(409).json({ success: false, message: 'An account with this email already exists.' });
+  }
+
+  if (!user) {
+    user = new User({
+      name,
+      email: normalizedEmail,
+      password,
+      role: userRole,
+      isVerified: true, // Auto-verify for development
+      isActive: true,
+    });
+  } else {
+    user.name = name;
+    user.password = password;
+    user.role = userRole;
+    user.isActive = true;
+    user.isVerified = true; // Auto-verify for development
+  }
+
+  await user.save();
+
+  const verificationToken = createVerificationToken(user._id);
+  const verificationUrl = `${getFrontendUrl()}/verify-email?token=${encodeURIComponent(verificationToken)}`;
+  const emailResult = await emailService.sendVerificationEmail(user.email, user.name, verificationUrl);
+
+  const userObj = user.toJSON();
 
   res.status(201).json({
     success: true,
-    message: 'Account created successfully',
-    data: { user, token },
+    message: 'Account created successfully. Check your email to verify your account.',
+    data: {
+      user: userObj,
+      verificationSent: emailResult.success,
+      verificationUrl: process.env.NODE_ENV === 'development' || !emailResult.success ? verificationUrl : undefined,
+    },
+  });
+});
+
+// @desc    Verify email address
+// @route   POST /api/auth/verify-email
+// @access  Public
+const verifyEmail = asyncHandler(async (req, res) => {
+  const token = req.body?.token || req.query?.token;
+
+  if (!token) {
+    return res.status(400).json({ success: false, message: 'Verification token is required.' });
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return res.status(400).json({ success: false, message: 'Verification token is invalid or expired.' });
+  }
+
+  if (decoded.purpose !== 'email-verification') {
+    return res.status(400).json({ success: false, message: 'Invalid verification token.' });
+  }
+
+  const user = await User.findById(decoded.id).select('+password');
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'Account not found.' });
+  }
+
+  if (user.isVerified) {
+    return res.status(200).json({
+      success: true,
+      message: 'Account already verified.',
+      data: { user: user.toJSON() },
+    });
+  }
+
+  user.isVerified = true;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: 'Email verified successfully. You can now log in.',
+    data: { user: user.toJSON() },
   });
 });
 
@@ -33,73 +123,24 @@ const login = asyncHandler(async (req, res) => {
     return res.status(400).json({ success: false, message: 'Email and password are required.' });
   }
 
-  // Define allowed admin emails
-  const allowedAdminEmails = [
-    'nayak@gmail.com',
-    'akhil@gmail.com',
-    'jilan@gmail.com',
-    'trinadh@gmail.com'
-  ];
-
-  // If admin login attempt
-  if (mode === 'admin') {
-    // Check if email is in allowed admin list
-    if (!allowedAdminEmails.includes(normalizedEmail)) {
-      return res.status(401).json({ success: false, message: 'Invalid credentials. This email is not authorized as admin.' });
-    }
-
-    // Check if password matches admin password
-    if (password !== 'admin@123') {
-      return res.status(401).json({ success: false, message: 'Invalid credentials. Incorrect password.' });
-    }
-
-    // Check if user exists in database
-    let user = await User.findOne({ email: normalizedEmail });
-
-    // If user doesn't exist, create them as admin
-    if (!user) {
-      user = await User.create({
-        name: email.split('@')[0],
-        email: normalizedEmail,
-        password: password,
-        role: 'admin'
-      });
-    } else if (user.role !== 'admin') {
-      // Update role to admin if they exist but aren't admin
-      user.role = 'admin';
-      await user.save();
-    }
-
-    const token = generateToken(user._id);
-    const userObj = user.toJSON();
-
-    return res.status(200).json({
-      success: true,
-      message: `Welcome back, ${user.name}!`,
-      data: { user: userObj, token },
-    });
-  }
-
-  // Student login
   let user = await User.findOne({ email: normalizedEmail }).select('+password');
-
-  // Ensure the demo student account works even on fresh/non-seeded deployments.
-  if (!user && normalizedEmail === 'student@gmail.com' && password === 'student@123') {
-    user = await User.create({
-      name: 'Student User',
-      email: normalizedEmail,
-      password: 'student@123',
-      role: 'student',
-    });
-    user = await User.findOne({ email: normalizedEmail }).select('+password');
-  }
 
   if (!user || !user.isActive) {
     return res.status(401).json({ success: false, message: 'Invalid credentials.' });
   }
 
-  if (user.role !== 'student') {
-    return res.status(401).json({ success: false, message: 'Please use Admin mode for admin accounts.' });
+  if (!user.isVerified) {
+    return res.status(403).json({
+      success: false,
+      message: 'Please verify your email before logging in.',
+    });
+  }
+
+  if (mode && user.role !== mode) {
+    return res.status(401).json({
+      success: false,
+      message: `Please use ${user.role === 'admin' ? 'Admin' : 'Student'} mode for this account.`,
+    });
   }
 
   const isMatch = await user.comparePassword(password);
@@ -204,4 +245,4 @@ const getRecipients = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { register, login, getMe, logout, updateProfile, changePassword, getRecipients };
+module.exports = { register, verifyEmail, login, getMe, logout, updateProfile, changePassword, getRecipients };

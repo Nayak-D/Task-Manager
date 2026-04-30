@@ -67,10 +67,10 @@ export function CreateEditNoticePage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-800 dark:text-white">
-              {isEditing ? 'Edit Notice' : 'Create Notice'}
+              {isEditing ? 'Edit Task' : 'Create Task'}
             </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              {isEditing ? 'Update the notice details below' : 'Fill in the details to publish a new notice'}
+              {isEditing ? 'Update the task details below' : 'Fill in the details to publish a new task'}
             </p>
           </div>
         </div>

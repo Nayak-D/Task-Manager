@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'student'],
       default: 'student',
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
     avatar: {
       type: String,
       default: null,

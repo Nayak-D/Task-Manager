@@ -7,9 +7,12 @@ import { useThemeStore } from '@/store/themeStore';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { StudentLayout } from '@/layouts/StudentLayout';
 import { ProtectedRoute, StudentRoute } from '@/features/auth/ProtectedRoute';
+import { AuthLayout } from '@/layouts/AuthLayout';
 
 // Lazy pages
 const LoginPage = lazy(() => import('@/pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('@/pages/RegisterPage').then(m => ({ default: m.RegisterPage })));
+const VerifyEmailPage = lazy(() => import('@/pages/VerifyEmailPage').then(m => ({ default: m.VerifyEmailPage })));
 const StudentFeedPage = lazy(() => import('@/pages/StudentFeedPage').then(m => ({ default: m.StudentFeedPage })));
 const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
 const ManageNoticesPage = lazy(() => import('@/pages/ManageNoticesPage').then(m => ({ default: m.ManageNoticesPage })));
@@ -38,7 +41,11 @@ function AppContent() {
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public */}
-          <Route path="/login" element={<LoginPage />} />
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+          </Route>
 
           {/* Student feed — protected */}
           <Route element={<StudentRoute />}>

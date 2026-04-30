@@ -81,6 +81,13 @@ export interface LoginDto {
   mode?: 'student' | 'admin';
 }
 
+export interface RegisterDto {
+  name: string;
+  email: string;
+  password: string;
+  role: 'admin' | 'student';
+}
+
 export interface ApiResponse<T> {
   data: T;
   message: string;

@@ -42,13 +42,13 @@ export function AdminDashboardPage() {
           <p className="text-sm text-slate-500 dark:text-slate-400">Welcome back, Admin</p>
         </div>
         <Link to="/admin/notices/new">
-          <Button icon={<PlusCircle size={16} />}>Create Notice</Button>
+          <Button icon={<PlusCircle size={16} />}>Create Task</Button>
         </Link>
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Notices" value={stats.total} icon={<FileText size={20} />} color="bg-primary-500" delay={0} />
+        <StatCard title="Total Tasks" value={stats.total} icon={<FileText size={20} />} color="bg-primary-500" delay={0} />
         <StatCard title="Active" value={stats.active} icon={<CheckCircle size={20} />} color="bg-emerald-500" delay={0.05} />
         <StatCard title="Expiring Soon" value={stats.expiringSoon} icon={<Clock size={20} />} color="bg-orange-500" delay={0.1} />
         <StatCard title="Total Views" value={stats.totalViews.toLocaleString()} icon={<Eye size={20} />} color="bg-violet-500" delay={0.15} />
@@ -60,7 +60,7 @@ export function AdminDashboardPage() {
         {/* Recent notices */}
         <div className="lg:col-span-2 bg-white dark:bg-navy-850 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
-            <h2 className="font-bold text-slate-800 dark:text-white text-sm">Recent Notices</h2>
+            <h2 className="font-bold text-slate-800 dark:text-white text-sm">Recent Tasks</h2>
             <Link to="/admin/notices" className="text-xs text-primary-600 dark:text-primary-400 font-semibold flex items-center gap-1 hover:underline">
               View all <ArrowRight size={12} />
             </Link>
@@ -84,10 +84,10 @@ export function AdminDashboardPage() {
           <div className="bg-white dark:bg-navy-850 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
             <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 dark:border-slate-800">
               <Flame size={15} className="text-red-500" />
-              <h2 className="font-bold text-slate-800 dark:text-white text-sm">Urgent Notices</h2>
+              <h2 className="font-bold text-slate-800 dark:text-white text-sm">Urgent Tasks</h2>
             </div>
             {urgentNotices.length === 0 ? (
-              <div className="px-5 py-8 text-center text-xs text-slate-400">No urgent notices</div>
+              <div className="px-5 py-8 text-center text-xs text-slate-400">No urgent tasks</div>
             ) : (
               <div className="p-3 space-y-2">
                 {urgentNotices.map((n) => (
@@ -105,12 +105,12 @@ export function AdminDashboardPage() {
             <h2 className="font-bold text-slate-800 dark:text-white text-sm mb-3">Quick Actions</h2>
             <Link to="/admin/notices/new">
               <button className="w-full flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 rounded-xl text-sm font-semibold text-primary-700 dark:text-primary-300 transition-colors">
-                <PlusCircle size={16} /> Create New Notice
+                <PlusCircle size={16} /> Create New Task
               </button>
             </Link>
             <Link to="/admin/notices">
               <button className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 transition-colors mt-2">
-                <FileText size={16} /> Manage Notices
+                <FileText size={16} /> Manage Tasks
               </button>
             </Link>
             <a href="/" target="_blank" rel="noopener noreferrer">

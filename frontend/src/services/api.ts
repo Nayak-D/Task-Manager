@@ -1,6 +1,6 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import type { Notice, CreateNoticeDto, UpdateNoticeDto, LoginDto, ApiResponse, User, RecipientOption } from '@/types';
+import type { Notice, CreateNoticeDto, UpdateNoticeDto, LoginDto, RegisterDto, ApiResponse, User, RecipientOption } from '@/types';
 
 // ─── Axios Instance ────────────────────────────────────────────────────────────
 const envApiUrl = (import.meta as any).env?.VITE_API_URL;
@@ -60,6 +60,14 @@ api.interceptors.response.use(
 
 // ─── Auth Service ──────────────────────────────────────────────────────────────
 export const authService = {
+  async register(dto: RegisterDto): Promise<{ user: User; verificationSent: boolean; verificationUrl?: string }> {
+    const res = await api.post('/auth/register', dto);
+    return res.data.data;
+  },
+  async verifyEmail(token: string): Promise<{ user: User }> {
+    const res = await api.post('/auth/verify-email', { token });
+    return res.data.data;
+  },
   async login(dto: LoginDto): Promise<{ user: User; token: string }> {
     const res = await api.post('/auth/login', dto, { silent: true } as any);
     return res.data.data;

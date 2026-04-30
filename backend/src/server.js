@@ -38,18 +38,8 @@ const authLimiter = rateLimit({
   message: { success: false, message: 'Too many login attempts. Please try again later.' },
 });
 
-app.use('/api', limiter);
-app.use('/api/auth/login', authLimiter);
-
-// ─── CORS ──────────────────────────────────────────────────────────────────────
-const configuredOrigins = (process.env.FRONTEND_URL || '')
-  .split(',')
-  .map((origin) => origin.trim().replace(/\/$/, ''))
-  .filter(Boolean);
-
-// Allow Vercel preview/prod domains without requiring env updates for each preview URL.
-const isVercelDomain = (origin) => /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
-
+// Apply CORS before any route handlers or rate limiters so preflight
+// requests receive the proper CORS headers and are not blocked.
 app.use(
   cors({
     origin(origin, callback) {
@@ -58,9 +48,19 @@ app.use(
       // Allow requests with no origin (mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
 
-      if (configuredOrigins.includes(normalizedOrigin)) return callback(null, true);
+      // Allow any localhost/127.0.0.1 origin during development regardless of port
+      if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalizedOrigin)) {
+        return callback(null, true);
+      }
 
-      // Support Vercel deployments (preview + production URLs)
+      const configuredOrigins = (process.env.FRONTEND_URL || '')
+        .split(',')
+        .map((o) => o.trim().replace(/\/$/, ''))
+        .filter(Boolean);
+
+      const isVercelDomain = (o) => /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(o);
+
+      if (configuredOrigins.includes(normalizedOrigin)) return callback(null, true);
       if (isVercelDomain(normalizedOrigin)) return callback(null, true);
 
       callback(new Error(`CORS: Origin ${origin} not allowed`));
@@ -70,6 +70,12 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
+// Ensure OPTIONS preflight requests are handled globally
+app.options('*', cors());
+
+app.use('/api', limiter);
+app.use('/api/auth/login', authLimiter);
 
 // ─── Body Parsing ──────────────────────────────────────────────────────────────
 app.use(express.json({ limit: '10mb' }));

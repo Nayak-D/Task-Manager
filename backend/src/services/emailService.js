@@ -9,148 +9,189 @@ dns.setDefaultResultOrder('ipv4first');
  */
 
 class EmailService {
-    constructor() {
-        this.transporter = null;
-        this.initializeTransporter();
+  constructor() {
+    this.transporter = null;
+    this.initializeTransporter();
+  }
+
+  initializeTransporter() {
+    // Gmail configuration (recommended for testing/development)
+    if (process.env.EMAIL_SERVICE === 'gmail') {
+      const gmailPassword = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
+      this.transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        requireTLS: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: gmailPassword, // Use app-specific password for Gmail
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+    }
+    // Custom SMTP configuration (for production)
+    else if (process.env.SMTP_HOST) {
+      this.transporter = nodemailer.createTransport({
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT || 587,
+        secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASSWORD,
+        },
+        tls: {
+          rejectUnauthorized: false,
+        },
+      });
+    }
+    // Fallback to test account (Ethereal - for development only)
+    else {
+      this.setupTestAccount();
+    }
+  }
+
+  async setupTestAccount() {
+    // Create test account for development
+    const testAccount = await nodemailer.createTestAccount();
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: testAccount.user,
+        pass: testAccount.pass,
+      },
+    });
+  }
+
+  /**
+   * Send email notification for a notice
+   * @param {string[]} recipients - Array of email addresses
+   * @param {Object} noticeData - Notice details
+   * @returns {Promise<Object>} - Result with message info and preview URL
+   */
+  async sendNoticeAlert(recipients, noticeData) {
+    if (!recipients || recipients.length === 0) {
+      console.warn('⚠️  No email recipients provided');
+      return { success: false, message: 'No recipients provided' };
     }
 
-    initializeTransporter() {
-        // Gmail configuration (recommended for testing/development)
-        if (process.env.EMAIL_SERVICE === 'gmail') {
-            const gmailPassword = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
-            this.transporter = nodemailer.createTransport({
-                host: 'smtp.gmail.com',
-                port: 587,
-                secure: false,
-                requireTLS: true,
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: gmailPassword, // Use app-specific password for Gmail
-                },
-                tls: {
-                    rejectUnauthorized: false,
-                },
-            });
-        }
-        // Custom SMTP configuration (for production)
-        else if (process.env.SMTP_HOST) {
-            this.transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST,
-                port: process.env.SMTP_PORT || 587,
-                secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-                auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASSWORD,
-                },
-                tls: {
-                    rejectUnauthorized: false,
-                },
-            });
-        }
-        // Fallback to test account (Ethereal - for development only)
-        else {
-            this.setupTestAccount();
-        }
+    if (!this.transporter) {
+      console.error('❌ Email service not configured');
+      return { success: false, message: 'Email service not configured' };
     }
 
-    async setupTestAccount() {
-        // Create test account for development
-        const testAccount = await nodemailer.createTestAccount();
-        this.transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
-            secure: false,
-            auth: {
-                user: testAccount.user,
-                pass: testAccount.pass,
-            },
-        });
+    const {
+      title,
+      description,
+      category,
+      author,
+      expiryDate,
+      noticeId,
+      baseUrl = process.env.FRONTEND_URL,
+    } = noticeData;
+
+    // Create HTML email template
+    const htmlContent = this.generateEmailTemplate({
+      title,
+      description,
+      category,
+      author,
+      expiryDate,
+      noticeId,
+      baseUrl,
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@noticeboard.com',
+      to: recipients.join(', '),
+      subject: `🔔 New Notice: ${title}`,
+      html: htmlContent,
+      text: this.generatePlainTextEmail({ title, description, category, author, expiryDate }),
+    };
+
+    try {
+      const info = await this.transporter.sendMail(mailOptions);
+
+      // For test/development emails, generate preview URL
+      const previewUrl = process.env.NODE_ENV === 'development'
+        ? nodemailer.getTestMessageUrl(info)
+        : null;
+
+      console.log(`✅ Email sent to ${recipients.length} recipients`);
+      if (previewUrl) {
+        console.log(`📧 Preview: ${previewUrl}`);
+      }
+
+      return {
+        success: true,
+        message: `Email sent to ${recipients.length} recipients`,
+        messageId: info.messageId,
+        previewUrl,
+        recipientCount: recipients.length,
+      };
+    } catch (error) {
+      console.error('❌ Email sending error:', error.message);
+      return {
+        success: false,
+        message: error.message,
+        error: error.message,
+      };
+    }
+  }
+
+  async sendVerificationEmail(email, name, verificationUrl) {
+    if (!this.transporter) {
+      console.error('❌ Email service not configured');
+      return { success: false, message: 'Email service not configured' };
     }
 
-    /**
-     * Send email notification for a notice
-     * @param {string[]} recipients - Array of email addresses
-     * @param {Object} noticeData - Notice details
-     * @returns {Promise<Object>} - Result with message info and preview URL
-     */
-    async sendNoticeAlert(recipients, noticeData) {
-        if (!recipients || recipients.length === 0) {
-            console.warn('⚠️  No email recipients provided');
-            return { success: false, message: 'No recipients provided' };
-        }
+    const mailOptions = {
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@noticeboard.com',
+      to: email,
+      subject: 'Verify your Digital Notice Board account',
+      html: this.generateVerificationEmailTemplate({ name, verificationUrl }),
+      text: this.generateVerificationPlainTextEmail({ name, verificationUrl }),
+    };
 
-        if (!this.transporter) {
-            console.error('❌ Email service not configured');
-            return { success: false, message: 'Email service not configured' };
-        }
+    try {
+      const info = await this.transporter.sendMail(mailOptions);
+      const previewUrl = process.env.NODE_ENV === 'development'
+        ? nodemailer.getTestMessageUrl(info)
+        : null;
 
-        const {
-            title,
-            description,
-            category,
-            author,
-            expiryDate,
-            noticeId,
-            baseUrl = process.env.FRONTEND_URL,
-        } = noticeData;
+      console.log(`✅ Verification email sent to ${email}`);
+      if (previewUrl) {
+        console.log(`📧 Preview: ${previewUrl}`);
+      }
 
-        // Create HTML email template
-        const htmlContent = this.generateEmailTemplate({
-            title,
-            description,
-            category,
-            author,
-            expiryDate,
-            noticeId,
-            baseUrl,
-        });
-
-        const mailOptions = {
-            from: process.env.EMAIL_FROM || process.env.EMAIL_USER || 'noreply@noticeboard.com',
-            to: recipients.join(', '),
-            subject: `🔔 New Notice: ${title}`,
-            html: htmlContent,
-            text: this.generatePlainTextEmail({ title, description, category, author, expiryDate }),
-        };
-
-        try {
-            const info = await this.transporter.sendMail(mailOptions);
-
-            // For test/development emails, generate preview URL
-            const previewUrl = process.env.NODE_ENV === 'development'
-                ? nodemailer.getTestMessageUrl(info)
-                : null;
-
-            console.log(`✅ Email sent to ${recipients.length} recipients`);
-            if (previewUrl) {
-                console.log(`📧 Preview: ${previewUrl}`);
-            }
-
-            return {
-                success: true,
-                message: `Email sent to ${recipients.length} recipients`,
-                messageId: info.messageId,
-                previewUrl,
-                recipientCount: recipients.length,
-            };
-        } catch (error) {
-            console.error('❌ Email sending error:', error.message);
-            return {
-                success: false,
-                message: error.message,
-                error: error.message,
-            };
-        }
+      return {
+        success: true,
+        message: 'Verification email sent successfully',
+        messageId: info.messageId,
+        previewUrl,
+      };
+    } catch (error) {
+      console.error('❌ Verification email error:', error.message);
+      return {
+        success: false,
+        message: error.message,
+        error: error.message,
+      };
     }
+  }
 
-    /**
-     * Generate HTML email template
-     */
-    generateEmailTemplate({ title, description, category, author, expiryDate, noticeId, baseUrl }) {
-        const formattedDate = new Date(expiryDate).toLocaleString();
-        const viewNoticeLink = `${baseUrl}/notice/${noticeId}`;
+  /**
+   * Generate HTML email template
+   */
+  generateEmailTemplate({ title, description, category, author, expiryDate, noticeId, baseUrl }) {
+    const formattedDate = new Date(expiryDate).toLocaleString();
+    const viewNoticeLink = `${baseUrl}/notice/${noticeId}`;
 
-        return `
+    return `
     <!DOCTYPE html>
     <html>
     <head>
@@ -286,13 +327,13 @@ class EmailService {
     </body>
     </html>
     `;
-    }
+  }
 
-    /**
-     * Generate plain text version of email
-     */
-    generatePlainTextEmail({ title, description, category, author, expiryDate }) {
-        return `
+  /**
+   * Generate plain text version of email
+   */
+  generatePlainTextEmail({ title, description, category, author, expiryDate }) {
+    return `
 New Notice Alert
 ================
 
@@ -305,39 +346,118 @@ ${description}
 
 Please log in to the Digital Notice Board to view more details.
     `.trim();
-    }
+  }
 
-    /**
-     * Escape HTML special characters
-     */
-    escapeHtml(text) {
-        if (!text) return '';
-        const map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;',
-        };
-        return text.replace(/[&<>"']/g, (m) => map[m]);
-    }
+  generateVerificationEmailTemplate({ name, verificationUrl }) {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Verify your account</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          line-height: 1.6;
+          color: #1f2937;
+          background-color: #f4f7fb;
+          margin: 0;
+          padding: 0;
+        }
+        .container {
+          max-width: 640px;
+          margin: 24px auto;
+          background: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        }
+        .header {
+          background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+          color: white;
+          padding: 32px 24px;
+          text-align: center;
+        }
+        .content { padding: 32px 24px; }
+        .button {
+          display: inline-block;
+          margin-top: 16px;
+          background: #2563eb;
+          color: #fff !important;
+          text-decoration: none;
+          padding: 12px 22px;
+          border-radius: 10px;
+          font-weight: 700;
+        }
+        .note {
+          color: #6b7280;
+          font-size: 13px;
+          margin-top: 18px;
+          word-break: break-word;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="margin:0;font-size:26px;">Verify your account</h1>
+        </div>
+        <div class="content">
+          <p>Hi ${this.escapeHtml(name)},</p>
+          <p>Your Digital Notice Board account is ready. Click the button below to verify your email address and activate access to the portal.</p>
+          <a href="${verificationUrl}" class="button">Verify Email</a>
+          <p class="note">If the button does not work, copy and paste this link into your browser:</p>
+          <p class="note">${verificationUrl}</p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `.trim();
+  }
 
-    /**
-     * Verify transporter connection
-     */
-    async verifyConnection() {
-        if (!this.transporter) {
-            return false;
-        }
-        try {
-            await this.transporter.verify();
-            console.log('✅ Email service verified');
-            return true;
-        } catch (error) {
-            console.error('❌ Email service verification failed:', error.message);
-            return false;
-        }
+  generateVerificationPlainTextEmail({ name, verificationUrl }) {
+    return `
+Verify your Digital Notice Board account
+
+Hi ${name},
+
+Open this link to verify your email and activate your account:
+${verificationUrl}
+        `.trim();
+  }
+
+  /**
+   * Escape HTML special characters
+   */
+  escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+  }
+
+  /**
+   * Verify transporter connection
+   */
+  async verifyConnection() {
+    if (!this.transporter) {
+      return false;
     }
+    try {
+      await this.transporter.verify();
+      console.log('✅ Email service verified');
+      return true;
+    } catch (error) {
+      console.error('❌ Email service verification failed:', error.message);
+      return false;
+    }
+  }
 }
 
 module.exports = new EmailService();

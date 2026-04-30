@@ -99,22 +99,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-navy-950 via-navy-900 to-primary-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-600/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent-teal/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary-800/10 rounded-full blur-3xl" />
-      </div>
-
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-        }}
-      />
+    <div className="w-full flex items-center justify-center sm:justify-end sm:pr-[10%] lg:pr-[15%]">
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -123,7 +108,7 @@ export function LoginPage() {
         className="relative w-full max-w-md"
       >
         {/* Card */}
-        <div className="bg-white/[0.07] backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl">
+        <div className="bg-navy-900/40 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl pointer-events-auto">
           {/* Logo */}
           <div className="text-center mb-8">
             <motion.div
@@ -134,7 +119,7 @@ export function LoginPage() {
               <Bell size={30} className="text-white" />
             </motion.div>
             <h1 className="text-2xl font-bold text-white mb-1">Welcome Back</h1>
-            <p className="text-white/50 text-sm">Sign in to Digital Notice Board</p>
+            <p className="text-white/50 text-sm">Sign in to Digital Task Manager</p>
           </div>
 
           {/* Login Mode Toggle */}
@@ -238,7 +223,7 @@ export function LoginPage() {
 
           <div className="mt-6 text-center">
             <a href="/" className="text-xs text-white/40 hover:text-white/70 transition-colors">
-              ← Back to Student Notice Feed
+              ← Back to Student Task Feed
             </a>
           </div>
         </div>

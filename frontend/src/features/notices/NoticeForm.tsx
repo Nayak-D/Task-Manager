@@ -170,7 +170,7 @@ export function NoticeForm({ initialData, onSubmit, onCancel, loading }: NoticeF
       className="space-y-5"
     >
       <Input
-        label="Notice Title *"
+        label="Task Title *"
         placeholder="Enter a clear, descriptive title..."
         error={errors.title?.message}
         {...register('title')}
@@ -178,7 +178,7 @@ export function NoticeForm({ initialData, onSubmit, onCancel, loading }: NoticeF
 
       <Textarea
         label="Description *"
-        placeholder="Provide full details about the notice..."
+        placeholder="Provide full details about the task..."
         rows={4}
         error={errors.description?.message}
         {...register('description')}
@@ -242,7 +242,7 @@ export function NoticeForm({ initialData, onSubmit, onCancel, loading }: NoticeF
               {...register('scheduledAt')}
             />
             <p className="text-xs text-blue-600 dark:text-blue-400">
-              Notice will become visible to students at this exact date and time.
+              Task will become visible to students at this exact date and time.
             </p>
           </div>
         </motion.div>
@@ -402,7 +402,7 @@ export function NoticeForm({ initialData, onSubmit, onCancel, loading }: NoticeF
             )}
 
             <p className="text-xs text-emerald-600 dark:text-emerald-400">
-              💡 Emails will be sent when the notice is published or updated with email alert enabled.
+              💡 Emails will be sent when the task is published or updated with email alert enabled.
             </p>
           </div>
         </motion.div>
@@ -417,7 +417,7 @@ export function NoticeForm({ initialData, onSubmit, onCancel, loading }: NoticeF
           disabled={watchedEmailAlert && emailRecipients.length === 0}
           title={watchedEmailAlert && emailRecipients.length === 0 ? 'Add email recipients to publish with email alert' : ''}
         >
-          {isEditing ? 'Update Notice' : watchedStatus === 'draft' ? 'Save as Draft' : watchedStatus === 'scheduled' ? 'Schedule Notice' : 'Publish Notice'}
+          {isEditing ? 'Update Task' : watchedStatus === 'draft' ? 'Save as Draft' : watchedStatus === 'scheduled' ? 'Schedule Task' : 'Publish Task'}
         </Button>
         <Button type="button" variant="ghost" onClick={onCancel} disabled={loading}>
           Cancel
