@@ -30,8 +30,6 @@ export function RegisterPage() {
     
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
-    const [submittedEmail, setSubmittedEmail] = useState<string>('');
 
     const {
         register,
@@ -49,7 +47,7 @@ export function RegisterPage() {
     const onSubmit = async (data: FormData) => {
         setLoading(true);
         try {
-            const res = await authService.register({
+            await authService.register({
                 name: data.name,
                 email: data.email,
                 password: data.password,
