@@ -14,7 +14,7 @@ const fallbackApiUrl = isLocalHost
 const api = axios.create({
   baseURL: envApiUrl || fallbackApiUrl,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 60000,
 });
 
 // Request interceptor — attach JWT

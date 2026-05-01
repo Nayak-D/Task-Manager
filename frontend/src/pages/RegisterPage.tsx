@@ -57,7 +57,8 @@ export function RegisterPage() {
             toast.success('Account created. Check your email for the verification code.');
             navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
         } catch (err: any) {
-            toast.error(err?.response?.data?.message || 'Could not create account.');
+            const errorMsg = err?.response?.data?.message || (err.code === 'ECONNABORTED' ? 'The server took too long to respond. It may be waking up. Please try again.' : 'Could not create account.');
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
