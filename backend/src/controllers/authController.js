@@ -52,6 +52,11 @@ const register = asyncHandler(async (req, res) => {
   user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
   await user.save();
 
+  // Log verification code in development mode
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`📧 Verification code for ${user.email}: ${verificationCode}`);
+  }
+
   // Send verification email asynchronously – do not await to keep response fast
   emailService.sendVerificationEmail(user.email, user.name, verificationCode).catch(err => {
     console.error('Failed to send verification email:', err);
