@@ -49,25 +49,17 @@ class EmailService {
         },
       });
     }
-    // Fallback to test account (Ethereal - for development only)
+    // No fallback - require real email configuration
     else {
-      console.log('📧 Email service not configured, using test account');
-      this.setupTestAccount();
+      console.error('❌ Email service not configured! Set EMAIL_SERVICE=gmail with valid credentials in .env');
+      this.transporter = null;
     }
   }
 
   async setupTestAccount() {
-    // Create test account for development
-    const testAccount = await nodemailer.createTestAccount();
-    this.transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
+    // Disabled - real email required
+    console.error('❌ Test email account disabled. Real email configuration required.');
+    this.transporter = null;
   }
 
   /**
@@ -119,21 +111,12 @@ class EmailService {
     try {
       const info = await this.transporter.sendMail(mailOptions);
 
-      // For test/development emails, generate preview URL
-      const previewUrl = process.env.NODE_ENV === 'development'
-        ? nodemailer.getTestMessageUrl(info)
-        : null;
-
-      console.log(`✅ Email sent to ${recipients.length} recipients`);
-      if (previewUrl) {
-        console.log(`📧 Preview: ${previewUrl}`);
-      }
+      console.log(`✅ Task notification sent to ${recipients.length} recipients`);
 
       return {
         success: true,
         message: `Email sent to ${recipients.length} recipients`,
         messageId: info.messageId,
-        previewUrl,
         recipientCount: recipients.length,
       };
     } catch (error) {
@@ -162,20 +145,13 @@ class EmailService {
 
     try {
       const info = await this.transporter.sendMail(mailOptions);
-      const previewUrl = process.env.NODE_ENV === 'development'
-        ? nodemailer.getTestMessageUrl(info)
-        : null;
 
       console.log(`✅ Verification email sent to ${email}`);
-      if (previewUrl) {
-        console.log(`📧 Preview: ${previewUrl}`);
-      }
 
       return {
         success: true,
         message: 'Verification email sent successfully',
         messageId: info.messageId,
-        previewUrl,
       };
     } catch (error) {
       console.error('❌ Verification email error:', error.message);
