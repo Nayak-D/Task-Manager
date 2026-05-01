@@ -9,12 +9,12 @@ const isLocalHost =
   ['localhost', '127.0.0.1'].includes(window.location.hostname);
 const fallbackApiUrl = isLocalHost
   ? 'http://localhost:5000/api'
-  : 'https://digital-notice-board-9cq4.onrender.com/api';
+  : 'https://task-manager-3-c10i.onrender.com/api';
 
 const api = axios.create({
   baseURL: envApiUrl || fallbackApiUrl,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 60000,
+  timeout: 120000,
 });
 
 // Request interceptor — attach JWT

@@ -52,7 +52,10 @@ const register = asyncHandler(async (req, res) => {
   user.verificationCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
   await user.save();
 
-  const emailResult = await emailService.sendVerificationEmail(user.email, user.name, verificationCode);
+  // Send verification email asynchronously – do not await to keep response fast
+  emailService.sendVerificationEmail(user.email, user.name, verificationCode).catch(err => {
+    console.error('Failed to send verification email:', err);
+  });
 
   const userObj = user.toJSON();
 
@@ -61,9 +64,9 @@ const register = asyncHandler(async (req, res) => {
     message: 'Account created successfully. Check your email for the verification code.',
     data: {
       user: userObj,
-      verificationSent: emailResult.success,
+      verificationSent: true,
       // For development purposes, expose code (REMOVE in actual prod if needed, though dev makes it easy to test)
-      verificationCode: process.env.NODE_ENV === 'development' || !emailResult.success ? verificationCode : undefined,
+      verificationCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined,
     },
   });
 });
