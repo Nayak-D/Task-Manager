@@ -9,6 +9,7 @@ export function AuthLayout() {
           src="https://my.spline.design/boxeshover-mEGXzS1UzdFm8SFZvjIfiLyu/"
           frameBorder="0"
           className="w-full h-full"
+          loading="eager"
           style={{ pointerEvents: 'auto', border: 'none' }}
         />
       </div>
