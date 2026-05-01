@@ -101,6 +101,9 @@ const verifyEmail = asyncHandler(async (req, res) => {
     });
   }
 
+  // Log verification attempt for debugging
+  console.log(`🔍 Verify email attempt for ${email}: code=${code}, stored=${user.verificationCode}, expired=${user.verificationCodeExpires < new Date()}`);
+
   if (user.verificationCode !== code) {
     return res.status(400).json({ success: false, message: 'Invalid verification code.' });
   }
@@ -113,6 +116,8 @@ const verifyEmail = asyncHandler(async (req, res) => {
   user.verificationCode = null;
   user.verificationCodeExpires = null;
   await user.save();
+
+  console.log(`✅ Email verified successfully for ${email}`);
 
   res.status(200).json({
     success: true,

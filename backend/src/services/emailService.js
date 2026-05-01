@@ -18,6 +18,7 @@ class EmailService {
     // Gmail configuration (recommended for testing/development)
     if (process.env.EMAIL_SERVICE === 'gmail') {
       const gmailPassword = (process.env.EMAIL_PASSWORD || '').replace(/\s+/g, '');
+      console.log(`📧 Initializing Gmail email service as: ${process.env.EMAIL_USER}`);
       this.transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
@@ -34,6 +35,7 @@ class EmailService {
     }
     // Custom SMTP configuration (for production)
     else if (process.env.SMTP_HOST) {
+      console.log(`📧 Initializing custom SMTP: ${process.env.SMTP_HOST}:${process.env.SMTP_PORT}`);
       this.transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT || 587,
@@ -49,6 +51,7 @@ class EmailService {
     }
     // Fallback to test account (Ethereal - for development only)
     else {
+      console.log('📧 Email service not configured, using test account');
       this.setupTestAccount();
     }
   }
